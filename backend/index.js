@@ -4,34 +4,29 @@ const { Pool } = require('pg');
 const morgan = require('morgan');
 
 const authRouter = require('./route/authRoute');
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controller/errorController');
+const catchAsync = require('./utils/catchAsync');
+
 
 //Create an instance of the Express application
 const app = express();
-
-// PostgreSQL connection config
-const pool = new Pool({
-  user: 'postgres',
-  host: '127.0.0.1',
-  database: 'nexus',
-  password: 'bogadeji',
-  port: 5433
-});
-
 
 // Middleware to parse JSON bodies
 app.use(express.json());
 app.use(morgan('dev'));
 
-
 // app routes
 app.use('/api/v1/auth', authRouter);
 
-app.use('*', (req, res, next) => {
-  res.status(404).json({
-    status: 'fail',
-    message: 'Route not found'
-  });
-});
+app.use(
+  '*',
+  catchAsync(async (req, res, next) => {
+    throw new AppError(`Can't find the ${req.originUrl} route on this server`, 404);
+  })
+);
+// Global Error Handler
+app.use(globalErrorHandler);
 
 const PORT = process.env.APP_PORT || 4000
 // Start the server

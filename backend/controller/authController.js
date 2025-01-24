@@ -1,20 +1,20 @@
 const user = require('../db/models/user');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 const generateToken = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 }
-const signup = async (req, res, next) => {
+const signup = catchAsync(async (req, res, next) => {
   const body = req.body;
 
   if (!['1', '2'].includes(body.userType)) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'invalid user type',
-    });
+    throw new AppError('Invalid user type', 404)
+    
   }
 
   const newUser = await user.create({
@@ -27,14 +27,11 @@ const signup = async (req, res, next) => {
     confirmPassword: body.confirmPassword,
   });
 
-  const result = newUser.toJSON();
-
-  if (!result) {
-    return res.status(400).json({
-      status: 'fail',
-      message: 'Failed to create new user',
-    });
+  if (!newUser) {
+    return next(new AppError('Failed to create new user', 400));
   }
+
+  const result = newUser.toJSON();
 
   delete result.password;
   delete result.deleteAt;
@@ -51,30 +48,25 @@ const signup = async (req, res, next) => {
     message: 'New user profile created successfully',
     data: result,
   })
-};
+});
 
-const login = async (req, res, next) => {
+const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    res.status(400).json({
-      status: 'fail',
-      message: 'Please provide email and password',
-    });
+    return next(new AppError('Please provide email and password'));
   }
 
-  const result = await user.findOne({ where: { email }})
+  const result = await user.findOne({ where: { email }});
+
   if (result && result.length !== 0) {
     const isPasswordMatched = await bcrypt.compare(password, result.password);
   
     if (!result || !isPasswordMatched) {
-      res.status(401).json({
-        status: 'fail',
-        message: 'Incorrect email or password'
-      })
+      return next(new AppError('Incorrect email or password'));
     }
 
-    const token = await generateToken({
+    const token = generateToken({
       id: result.id,
       email: result.email,
       userType: result.userType,
@@ -92,7 +84,7 @@ const login = async (req, res, next) => {
     status: 'fail',
     message: 'Incorrect email or password'
   })
-}
+})
 module.exports = {
   signup,
   login
