@@ -18,10 +18,16 @@ module.exports = {
       lastName: {
         type: Sequelize.STRING
       },
-      userName: {
+      username: {
         type: Sequelize.STRING
       },
       email: {
+        type: Sequelize.STRING
+      },
+      role: {
+        type: Sequelize.STRING
+      },
+      password: {
         type: Sequelize.STRING
       },
       createdAt: {
@@ -34,7 +40,7 @@ module.exports = {
       },
       deletedAt: {
         type: Sequelize.DATE
-      }
+      },
     });
   },
   async down(queryInterface, Sequelize) {

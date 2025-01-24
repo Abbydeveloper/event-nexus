@@ -3,21 +3,21 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const generateToken = (payload) => {
-  jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+  return jwt.sign(payload, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRES_IN,
-  })
+  });
 }
 const signup = async (req, res, next) => {
   const body = req.body;
 
-  if (!['1', '2'].includes(bodyd.userType)) {
+  if (!['1', '2'].includes(body.userType)) {
     return res.status(400).json({
       status: 'fail',
       message: 'invalid user type',
     });
   }
 
-  const newUser = awaitcreate({
+  const newUser = await user.create({
     userType: body.userType,
     firstName: body.firstName,
     lastName: body.lastName,
@@ -63,25 +63,34 @@ const login = async (req, res, next) => {
     });
   }
 
-  const user = user.findONe({ where: { email }})
-  const isPasswordMatched = await bcrypt.compare(password, user.password);
+  const result = await user.findOne({ where: { email }})
+  if (result && result.length !== 0) {
+    const isPasswordMatched = await bcrypt.compare(password, result.password);
+  
+    if (!result || !isPasswordMatched) {
+      res.status(401).json({
+        status: 'fail',
+        message: 'Incorrect email or password'
+      })
+    }
 
-  if (!user || !isPasswordMatched) {
-    res.status(401).json({
-      status: 'fail',
-      message: 'Incorrect email or password'
+    const token = await generateToken({
+      id: result.id,
+      email: result.email,
+      userType: result.userType,
+      role: result.userRole
+    });
+
+    return res.json({
+      status: 'success',
+      message: 'User Login Successful',
+      token
     })
-  }
-
-  const token = generateToken({
-    id: user.id,
-
-  });
+  };
 
   return res.json({
-    status: 'success',
-    message: 'User Login Successful',
-    token
+    status: 'fail',
+    message: 'Incorrect email or password'
   })
 }
 module.exports = {
