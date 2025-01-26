@@ -4,6 +4,7 @@ const { Pool } = require('pg');
 const morgan = require('morgan');
 
 const authRouter = require('./route/authRoute');
+const eventRouter = require('./route/eventRoute');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controller/errorController');
 const catchAsync = require('./utils/catchAsync');
@@ -18,11 +19,12 @@ app.use(morgan('dev'));
 
 // app routes
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/event', eventRouter)
 
 app.use(
   '*',
   catchAsync(async (req, res, next) => {
-    throw new AppError(`Can't find the ${req.originUrl} route on this server`, 404);
+    throw new AppError(`Can't find the ${req.originalUrl} route on this server`, 404);
   })
 );
 // Global Error Handler
