@@ -5,9 +5,12 @@ const {
   updateEvent,
   deleteEvent, } = require('../controller/eventController');
 
+
+const authentication = require('../controller/authController');
+
 const router = require('express').Router();
 
-router.route('/events').post(createEvent);
+router.route('/events').post(authentication, createEvent);
 
 router.route('/events').get(getAllEvents);
 

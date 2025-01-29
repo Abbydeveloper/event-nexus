@@ -6,11 +6,13 @@ const catchAsync = require('../utils/catchAsync');
 const createEvent = catchAsync(async (req, res, next) => {
     const body = req.body;
     const userId = req.user.id;
+    
     const newEvent = await event.create({
         title: body.title,
         eventImage: body.eventImage,
-        description: body.description,
+        eventPrice: body.eventPrice,
         shortDesc: body.shortDesc,
+        description: body.description,
         category: body.category,
         createdBy: userId,
     });
@@ -21,9 +23,9 @@ const createEvent = catchAsync(async (req, res, next) => {
     });
 });
 
-const getAllProject = catchAsync(async (req, res, next) => {
+const getAllEvents = catchAsync(async (req, res, next) => {
     const userId = req.user.id;
-    const result = await project.findAll({
+    const result = await event.findAll({
         include: user,
         where: { createdBy: userId },
     });
@@ -34,11 +36,11 @@ const getAllProject = catchAsync(async (req, res, next) => {
     });
 });
 
-const getProjectById = catchAsync(async (req, res, next) => {
-    const projectId = req.params.id;
-    const result = await project.findByPk(projectId, { include: user });
+const getEventById = catchAsync(async (req, res, next) => {
+    const eventId = req.params.id;
+    const result = await event.findByPk(eventId, { include: user });
     if (!result) {
-        return next(new AppError('Invalid project id', 400));
+        return next(new AppError('Invalid event id', 400));
     }
     return res.json({
         status: 'success',
@@ -46,28 +48,27 @@ const getProjectById = catchAsync(async (req, res, next) => {
     });
 });
 
-const updateProject = catchAsync(async (req, res, next) => {
+const updateEvent = catchAsync(async (req, res, next) => {
     const userId = req.user.id;
-    const projectId = req.params.id;
+    const eventId = req.params.id;
     const body = req.body;
 
-    const result = await project.findOne({
-        where: { id: projectId, createdBy: userId },
+    const result = await event.findOne({
+        where: { id: eventId, createdBy: userId },
     });
 
     if (!result) {
-        return next(new AppError('Invalid project id', 400));
+        return next(new AppError('Invalid event id', 400));
     }
 
     result.title = body.title;
-    result.productImage = body.productImage;
-    result.price = body.price;
-    result.shortDescription = body.shortDescription;
+    result.eventImage = body.eventImage;
+    result.eventPrice = body.eventPrice;
+    result.shortDesc = body.shortDesc;
     result.description = body.description;
-    result.productUrl = body.productUrl;
     result.category = body.category;
-    result.tags = body.tags;
 
+    
     const updatedResult = await result.save();
 
     return res.json({
@@ -76,17 +77,17 @@ const updateProject = catchAsync(async (req, res, next) => {
     });
 });
 
-const deleteProject = catchAsync(async (req, res, next) => {
+const deleteEvent = catchAsync(async (req, res, next) => {
     const userId = req.user.id;
-    const projectId = req.params.id;
+    const eventId = req.params.id;
     const body = req.body;
 
-    const result = await project.findOne({
-        where: { id: projectId, createdBy: userId },
+    const result = await event.findOne({
+        where: { id: eventId, createdBy: userId },
     });
 
     if (!result) {
-        return next(new AppError('Invalid project id', 400));
+        return next(new AppError('Invalid event id', 400));
     }
 
     await result.destroy();

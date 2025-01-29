@@ -77,15 +77,41 @@ const login = catchAsync(async (req, res, next) => {
       status: 'success',
       message: 'User Login Successful',
       token
-    })
+    });
   };
 
   return res.json({
     status: 'fail',
     message: 'Incorrect email or password'
-  })
+  });
+});
+
+
+const authentication = catchAsync(async (req, res, next) => {
+      //  get the token from headers
+      let idToken = "";
+      if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        idToken = req.headers.authorization.split(' ')[1];
+      }
+
+      if (!idToken) {
+        return next(new AppError('Please Login to get access', 401))
+      }
+      
+      // token verification
+      const tokenDetail = jwt.verify(idToken, process.env.JWT_SECRET_KEY);
+      // Get the user detail from db and add to req object
+      const freshUser = await user.findByPk(token.id);
+
+      if (!freshUser) {
+        return next(new AppError('User does not exist', 400));
+      }
+      req.user = freshUser;
+      return next();
 })
+
 module.exports = {
   signup,
-  login
+  login,
+  authentication
 };
