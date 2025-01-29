@@ -8,16 +8,17 @@ const {
 
 const authentication = require('../controller/authController');
 
+const restrictTo = require('../controller/authController');
+
 const router = require('express').Router();
 
-router.route('/events').post(authentication, createEvent);
+router.route('/')
+  .post(authentication, restrictTo('0'), createEvent)
+  .get(authentication, restrictTo('1'), getAllEvents);
 
-router.route('/events').get(getAllEvents);
-
-router.route(`/event/:${id}`).get(getEventById);
-
-router.route(`/event/:${id}`).patch(updateEvent);
-
-router.route(`/event/:${id}`).delete(deleteEvent);
+router.route('/:id')
+  .get(authentication, restrictTo('1'), getEventById)
+  .patch(authentication, restrictTo('1'), updateEvent)
+  .delete(authentication, restrictTo('1'), deleteEvent);
 
 module.exports = router;
