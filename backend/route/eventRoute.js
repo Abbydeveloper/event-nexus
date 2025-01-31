@@ -6,9 +6,7 @@ const {
   deleteEvent, } = require('../controller/eventController');
 
 
-const authentication = require('../controller/authController');
-
-const restrictTo = require('../controller/authController');
+const { authentication, restrictTo } = require('../controller/authController');
 
 const router = require('express').Router();
 
