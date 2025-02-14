@@ -1,6 +1,7 @@
 const { 
   createEvent,
   getAllEvents,
+  getCreatedEvents,
   getEventById,
   updateEvent,
   deleteEvent, } = require('../controller/eventController');
@@ -11,12 +12,13 @@ const { authentication, restrictTo } = require('../controller/authController');
 const router = require('express').Router();
 
 router.route('/')
-  .post(authentication, restrictTo('0'), createEvent)
-  .get(authentication, restrictTo('1'), getAllEvents);
+  .post(authentication, restrictTo(['Admin', 'Organizer']), createEvent)
+  .get(authentication, restrictTo('Admin'), getAllEvents)
+  .get(authentication, restrictTo(['Admin', 'Organizer']), getCreatedEvents);
 
 router.route('/:id')
-  .get(authentication, restrictTo('1'), getEventById)
-  .patch(authentication, restrictTo('1'), updateEvent)
-  .delete(authentication, restrictTo('1'), deleteEvent);
+  .get(authentication, restrictTo(['Admin', 'Organizer']), getEventById)
+  .patch(authentication, restrictTo(['Admin', 'Organizer']), updateEvent)
+  .delete(authentication, restrictTo(['Admin', 'Organizer']), deleteEvent);
 
 module.exports = router;
