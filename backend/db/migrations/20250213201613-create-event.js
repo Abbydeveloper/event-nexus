@@ -25,6 +25,22 @@ module.exports = {
         type: Sequelize.TEXT,
         allowNull: false,
       },
+      price: {
+        type: Sequelize.DECIMAL,
+        allowNull: true,
+      },
+      venue: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      startDate: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
+      endDate: {
+        allowNull: false,
+        type: Sequelize.DATE
+      },
       category: {
         type: Sequelize.ARRAY(Sequelize.STRING)
       },
@@ -32,7 +48,7 @@ module.exports = {
           type: Sequelize.INTEGER,
           allowNull: true,
           references: {
-              model: 'user',
+              model: 'users',
               key: 'id',
           },
       },

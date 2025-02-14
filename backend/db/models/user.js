@@ -14,15 +14,15 @@ const user = sequelize.define(
       primaryKey: true,
       type: DataTypes.INTEGER
     },
-    userType: {
-      type: DataTypes.ENUM('0', '1', '2'),
+    role: {
+      type: DataTypes.ENUM('Admin', 'Guest', 'Organizer', 'User'),
       allowNull: false,
       validate: {
         notNull: {
-          msg: 'userType cannot be null',
+          msg: 'User role cannot be null',
         },
         notEmpty: {
-          msg: 'userType cannot be empty'
+          msg: 'User role cannot be empty'
         }
       }
     },
@@ -50,9 +50,10 @@ const user = sequelize.define(
         }
       }
     },
-    username: {
+    userName: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
       validate: {
         notNull: {
           msg: 'username cannot be null',
@@ -78,18 +79,18 @@ const user = sequelize.define(
         }
       }
     },
-    role: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'role cannot be null',
-        },
-        notEmpty: {
-          msg: 'role cannot be empty'
-        }
-      }
-    },
+    // role: {
+    //   type: DataTypes.STRING,
+    //   allowNull: false,
+    //   validate: {
+    //     notNull: {
+    //       msg: 'role cannot be null',
+    //     },
+    //     notEmpty: {
+    //       msg: 'role cannot be empty'
+    //     }
+    //   }
+    // },
     password: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -104,26 +105,23 @@ const user = sequelize.define(
     },
     confirmPassword: {
       type: DataTypes.VIRTUAL,
-      allowNull: false,
-      validate: {
-        notNull: {
-          msg: 'confirmPassword cannot be null',
-        },
-        notEmpty: {
-          msg: 'confirmPassword cannot be empty'
-        }
+        set(value) {
+          if (this.password.length < 7) {
+              throw new AppError(
+                  'Password length must be grater than 7',
+                  400
+              );
+          }
+          if (value === this.password) {
+              const hashPassword = bcrypt.hashSync(value, 10);
+              this.setDataValue('password', hashPassword);
+          } else {
+              throw new AppError(
+                  'Password and confirm password must be the same',
+                  400
+              );
+          }
       },
-      set(value) {
-        if (this.password.length < 7) {
-          throw new AppError('Password length must be greater than 7');
-        }
-        if (value === this.password) {
-          const hashPassword = bcrypt.hashSync(value, 10);
-          this.setDataValue('password', hashPassword);
-        } else {
-          throw new AppError('Password and confirm password must be same', 400);
-        }
-      }
     },
     createdAt: {
       allowNull: false,

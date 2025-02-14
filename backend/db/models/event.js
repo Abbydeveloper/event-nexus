@@ -24,12 +24,12 @@ module.exports = sequelize.define(
         },
         eventImage: {
             type: DataTypes.ARRAY(DataTypes.STRING),
-            allowNull: false,
-            validate: {
-                notNull: {
-                    msg: 'productImage cannot be null',
-                },
-            },
+            allowNull: true,
+            // validate: {
+            //     notNull: {
+            //         msg: 'productImage cannot be null',
+            //     },
+            // },
         },
         description: {
             type: DataTypes.TEXT,
@@ -63,6 +63,45 @@ module.exports = sequelize.define(
                     msg: 'category cannot be null',
                 },
             },
+        },
+        price: {
+          type: DataTypes.DECIMAL,
+          allowNull: false,
+          validate: {
+              notNull: {
+                  msg: 'price cannot be null',
+              },
+              isDecimal: {
+                  msg: 'price value must be in decimal',
+              },
+          },
+        },
+        venue: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    msg: "Event venue has to be specified"
+                }
+            }
+        },
+        startDate: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    msg: "Specify when the event begins"
+                }
+            }
+        },
+        endDate: {
+            type: DataTypes.DATE,
+            allowNull: false,
+            validate: {
+                notNull: {
+                    msg: "Event end date cannot be null"
+                }
+            }
         },
         createdBy: {
             type: DataTypes.INTEGER,
