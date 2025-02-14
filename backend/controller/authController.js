@@ -12,15 +12,16 @@ const generateToken = (payload) => {
 const signup = catchAsync(async (req, res, next) => {
   const body = req.body;
 
-  if (!['1', '2'].includes(body.userType)) {
+  if (!['Admin', 'Organizer', 'User', 'Guest'].includes(body.role)) {
     throw new AppError('Invalid user type', 404)
     
   }
 
+  console.log(body)
   const newUser = await user.create({
-    userType: body.userType,
     firstName: body.firstName,
     lastName: body.lastName,
+    userName: body.userName,
     email: body.email,
     role: body.role,
     password: body.password,
@@ -39,7 +40,6 @@ const signup = catchAsync(async (req, res, next) => {
   result.token = generateToken({
     id: result.id,
     email: result.email,
-    userType: result.userType,
     role: result.userRole
   })
   
@@ -54,7 +54,7 @@ const login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return next(new AppError('Please provide email and password'));
+    return next(new AppError('Please provide email and password', 400));
   }
 
   const result = await user.findOne({ where: { email }});
@@ -63,33 +63,37 @@ const login = catchAsync(async (req, res, next) => {
     const isPasswordMatched = await bcrypt.compare(password, result.password);
   
     if (!result || !isPasswordMatched) {
-      return next(new AppError('Incorrect email or password'));
+      return next(new AppError('Incorrect email or password', 400));
     }
 
     const token = generateToken({
       id: result.id,
       email: result.email,
-      userType: result.userType,
       role: result.userRole
     });
 
     return res.json({
       status: 'success',
       message: 'User Login Successful',
-      token
+      token,
+      firstName: result.firstName,
+      role: result.role
     });
   };
 
-  return res.json({
-    status: 'fail',
-    message: 'Incorrect email or password'
-  });
+  // return res.json({
+  //   status: 'fail',
+  //   message: 'Incorrect email or password'
+  // });
+
+  return next(new AppError('Incorrect email or password', 400));
 });
 
 
 const authentication = catchAsync(async (req, res, next) => {
       //  get the token from headers
       let idToken = "";
+
       if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
         idToken = req.headers.authorization.split(' ')[1];
       }
@@ -101,7 +105,7 @@ const authentication = catchAsync(async (req, res, next) => {
       // token verification
       const tokenDetail = jwt.verify(idToken, process.env.JWT_SECRET_KEY);
       // Get the user detail from db and add to req object
-      const freshUser = await user.findByPk(token.id);
+      const freshUser = await user.findByPk(tokenDetail.id);
 
       if (!freshUser) {
         return next(new AppError('User does not exist', 400));
@@ -110,15 +114,29 @@ const authentication = catchAsync(async (req, res, next) => {
       return next();
 });
 
-const restrictTo = (...userType) => {
+// const restrictTo = (...userType) => {
+//   const checkPermission = (req, res, next) => {
+//     if (!userType.includes(req.user.userTypes)) {
+//       return next( new AppError("You do not have permission to perform this action", 403));
+//     }
+//     return next();
+//   };
+//   return checkPermission;
+// }
+
+const restrictTo = (roles) => {
   const checkPermission = (req, res, next) => {
-    if (!userType.includes(req.user.userTypes)) {
+    if (typeof roles === "string") {
+      roles = [roles]
+    }
+    console.log(roles)
+    if (!roles.includes(req.user.role)) {
       return next( new AppError("You do not have permission to perform this action", 403));
     }
     return next();
   };
   return checkPermission;
-}
+};
 
 module.exports = {
   signup,

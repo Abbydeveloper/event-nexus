@@ -13,7 +13,11 @@ const createEvent = catchAsync(async (req, res, next) => {
         eventPrice: body.eventPrice,
         shortDesc: body.shortDesc,
         description: body.description,
+        price: body.price,
+        venue: body.venue,
         category: body.category,
+        startDate: body.startDate,
+        endDate: body.endDate,
         createdBy: userId,
     });
 
@@ -24,6 +28,23 @@ const createEvent = catchAsync(async (req, res, next) => {
 });
 
 const getAllEvents = catchAsync(async (req, res, next) => {
+    const userId = req.user.id;
+
+    if (req.user.role !== 'Admin') {
+        return next(new AppError('Permission denied', 401))
+    }
+    console.log('here')
+    const result = await event.findAll({
+        include: user,
+    });
+
+    return res.json({
+        status: 'success',
+        data: result,
+    });
+});
+
+const getCreatedEvents = catchAsync(async (req, res, next) => {
     const userId = req.user.id;
     const result = await event.findAll({
         include: user,
@@ -101,6 +122,7 @@ const deleteEvent = catchAsync(async (req, res, next) => {
 module.exports = {
     createEvent,
     getAllEvents,
+    getCreatedEvents,
     getEventById,
     updateEvent,
     deleteEvent,

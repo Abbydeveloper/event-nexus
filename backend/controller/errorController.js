@@ -1,27 +1,28 @@
 const AppError = require("../utils/appError");
 
 
-const sendErrorDev = (error, response) => {
+const sendErrorDev = (error, res) => {
   const statucCode = error.statusCode || 500;
   const status = error.status || 'error';
   const message = error.message;
   const stack = error.stack;
 
-  return response.status(statusCode).json({
+  return res.status(statusCode).json({
     status,
     message,
     stack,
   })
 }
 
-const sendErrorProd = (error, response) => {
+const sendErrorProd = (error, res) => {
+  console.log(error)
   const statusCode = error.statusCode || 500;
   const status = error.status || 'error';
   const message = error.message;
   const stack = error.stack;
 
   if (error.isOperational) {
-    return response.status(statusCode).json({
+    return res.status(statusCode).json({
       status,
       message,
     });
@@ -37,6 +38,9 @@ const sendErrorProd = (error, response) => {
 }
 
 const globalErrorHandler = (err, req, res, next) => {
+  if (err.name === 'JsonWebTokenError') {
+    err = new AppError('Invalid token', 401);
+  }
   if (err.name === 'SequelizeValidationError') {
     err = new AppError(err.errors[0].message, 400);
   }
@@ -46,7 +50,7 @@ const globalErrorHandler = (err, req, res, next) => {
   if (process.env.NODE_ENV === 'development') {
     return sendErrorDev(err, res);
   }
-  return sendErrorProd(err, res);
+  sendErrorProd(err, res);
 };
 
 
