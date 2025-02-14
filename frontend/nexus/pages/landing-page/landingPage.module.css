@@ -1,0 +1,181 @@
+:root {
+  --font-size-x-small: 0.8rem;
+  --font-size-small: 1.2rem;
+  --font-size-medium: 1.6rem;
+  --font-size-large: 1.8rem;
+  --font-size-x-large: 2.3rem;
+  --font-size-xx-large: 4.8rem;
+
+  
+  --section-padding: 5rem 0;
+  --section-header-padding: 0 0 3rem;
+  --section-body-padding: 0 0 3rem;
+  --section-footer-padding: 3rem 0 0;
+}
+
+
+/* CSS Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+/* 2. Remove default margin */
+* {
+  margin: 0;
+}
+body {
+  /* 3. Add accessible line-height */
+  line-height: 1.5;
+  /* 4. Improve text rendering */
+  -webkit-font-smoothing: antialiased;
+}
+/* 5. Improve media defaults */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+/* 6. Inherit fonts for form controls */
+input, button, textarea, select {
+  font: inherit;
+}
+/* 7. Avoid text overflows */
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+/* 8. Improve line wrapping */
+p {
+  text-wrap: pretty;
+}
+h1, h2, h3, h4, h5, h6 {
+  text-wrap: balance;
+}
+/*
+  9. Create a root stacking context
+*/
+#root, #__next {
+  isolation: isolate;
+}
+
+
+.container {
+  width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+body {
+  text-align: center;
+  font-family: "Inter", "Inter Placeholder", sans-serif;
+  font-size: var(--font-size-medium);
+
+}
+
+button {
+  cursor: pointer;
+}
+
+header .container{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  flex: none;
+  height: min-content;
+  align-content: center;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 20px;
+  width: unset;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+header .container .logo {
+  height: 70px;
+}
+
+.buttons :first-child{
+  margin-right: 10px;
+}
+.section-hero h1 {
+  font-size: 2em;
+}
+
+section {
+  padding: var(--section-padding)
+}
+
+section p {
+  color: rgb(136, 136, 136);
+  font-size: 1em;
+}
+
+section h3 {
+  font-size: 1.5em;
+}
+
+.inner-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  padding: 100px 0;
+  text-align: left;
+  height: 400px;
+  align-items: center;
+}
+.inner-section:nth-child(2n + 1) .article {
+  order: 2;
+}
+
+.inner-section .article {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: flex-start;
+}
+
+.inner-section div img {
+  height: 300px;
+  margin: 0 auto;
+}
+
+footer {
+  background-color: rgba(186, 104, 200, 0.8);
+  padding: 20px;
+}
+
+footer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+.footer-logo {
+  width: 150px;
+  background-color: #ba68c8;
+}
+@media(min-width: 1200px) {
+  .hidden-desktop {
+      display:none!important
+  }
+
+  
+  .section-hero h1 {
+    font-size: 3.5em;
+  }
+}
+
+@media(min-width: 810px) and (max-width: 1199px) {
+  .hidden-tablet {
+      display:none!important
+  }
+  
+  .section-hero h1 {
+    font-size: 4em;
+  }
+}
+
+@media(max-width: 809px) {
+  .hidden-mobile {
+      display:none!important
+  }
+
+  body {
+    font-size: var(--font-size-x-small);
+  }
+}
